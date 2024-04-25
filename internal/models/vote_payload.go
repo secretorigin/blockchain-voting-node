@@ -5,16 +5,16 @@ import (
 	"encoding/binary"
 )
 
-type VotePaylaod struct {
+type VotePayload struct {
 	Votes []Vote `json:"votes"`
 	Nodes []Node `json:"nodes"`
 }
 
-func (pl VotePaylaod) Size() uint64 {
-	return uint64(8 + len(pl.Votes)*VOTE_SIZE + 8 + len(pl.Nodes)*NODE_SIZE)
+func (pl VotePayload) Size() uint64 {
+	return uint64(8 + uint64(len(pl.Votes))*VOTE_SIZE + 8 + uint64(len(pl.Nodes))*NODE_SIZE)
 }
 
-func (pl VotePaylaod) Marshal() []byte {
+func (pl VotePayload) Marshal() []byte {
 	bytes := make([]byte, pl.Size())
 	last_index := uint64(0)
 
@@ -40,7 +40,7 @@ func (pl VotePaylaod) Marshal() []byte {
 	return bytes
 }
 
-func (pl *VotePaylaod) Unmarshal(bytes []byte) error {
+func (pl *VotePayload) Unmarshal(bytes []byte) error {
 	last_index := uint64(0)
 
 	// votes count
@@ -67,7 +67,7 @@ func (pl *VotePaylaod) Unmarshal(bytes []byte) error {
 	return nil
 }
 
-func (pl *VotePaylaod) Hash() []byte {
+func (pl *VotePayload) Hash() []byte {
 	bytes := pl.Marshal()
 	h := sha256.New()
 	h.Write(bytes)

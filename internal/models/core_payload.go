@@ -3,9 +3,12 @@ package models
 import (
 	"crypto/sha256"
 	"encoding/binary"
+
+	"github.com/google/uuid"
 )
 
 type CorePayload struct {
+	UserUuid        uuid.UUID `json:"user_uuid"` // user uuid
 	Voting          Voting    `json:"voting"`
 	CycleDuration   uint64    `json:"cycle_duration"`   // in seconds
 	SendingDuration uint64    `json:"sending_duration"` // in seconds
@@ -13,13 +16,16 @@ type CorePayload struct {
 }
 
 func (pl CorePayload) Size() uint64 {
-	return pl.Voting.Size() + uint64(8) + uint64(8) + SIGNATURE_SIZE
+	return UUID_SIZE + pl.Voting.Size() + uint64(8) + uint64(8) + SIGNATURE_SIZE
 }
 
 func (pl CorePayload) Marshal() []byte {
 	bytes := make([]byte, pl.Size())
 	last_index := uint64(0)
 
+	// user uuid
+	copy(bytes[last_index:last_index+UUID_SIZE], pl.UserUuid[:])
+	last_index += UUID_SIZE
 	// voting
 	voting_bytes := pl.Voting.Marshal()
 	copy(bytes[last_index:last_index+pl.Voting.Size()], voting_bytes)
@@ -40,6 +46,9 @@ func (pl CorePayload) Marshal() []byte {
 func (pl *CorePayload) Unmarshal(bytes []byte) error {
 	last_index := uint64(0)
 
+	// user uuid
+	copy(pl.UserUuid[:], bytes[last_index:last_index+UUID_SIZE])
+	last_index += UUID_SIZE
 	// voting
 	_ = pl.Voting.Unmarshal(bytes)
 	last_index += pl.Voting.Size()

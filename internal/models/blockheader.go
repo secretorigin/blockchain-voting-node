@@ -50,7 +50,7 @@ func (bl BlockHeader) Size() uint64 {
 
 func (bl BlockHeader) Marshal() []byte {
 	bytes := make([]byte, bl.Size())
-	last_index := 0
+	last_index := uint64(0)
 
 	// id
 	binary.LittleEndian.PutUint64(bytes[last_index:last_index+8], uint64(bl.Id))
@@ -89,7 +89,7 @@ func (bl BlockHeader) Marshal() []byte {
 }
 
 func (bl *BlockHeader) Unmarshal(bytes []byte) error {
-	last_index := 0
+	last_index := uint64(0)
 
 	// id
 	bl.Id = binary.LittleEndian.Uint64(bytes[last_index : last_index+8])

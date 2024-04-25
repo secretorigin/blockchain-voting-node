@@ -1,4 +1,4 @@
-package blockchain
+package validator
 
 import (
 	"bytes"
@@ -12,18 +12,26 @@ import (
 )
 
 type Validator struct {
-	Host    string `json:"host"`
-	Port    uint16 `json:"port"`
-	Storage ValidatorStorageInterface
+	host    string `json:"host"`
+	port    uint16 `json:"port"`
+	storage StorageInterface
 }
 
-type ValidatorStorageInterface interface {
+func NewValidator(host string, port uint16, storage StorageInterface) *Validator {
+	return &Validator{
+		host:    host,
+		port:    port,
+		storage: storage,
+	}
+}
+
+type StorageInterface interface {
 	IsUserAlreadyIn(userUuid uuid.UUID) (bool, error)
 	IsNodeAlreadyIn(nodeUuid uuid.UUID) (bool, error)
 }
 
 func (vl Validator) getPath() string {
-	return "http://" + vl.Host + ":" + string(vl.Port) + "/validate"
+	return "http://" + vl.host + ":" + string(vl.port) + "/validate"
 }
 
 func (vl Validator) validateBytesInValidator(userUuid uuid.UUID, votingUuid uuid.UUID, data []byte, signature models.Signature) (bool, error) {
@@ -136,7 +144,7 @@ func (vl Validator) VotePayload(payload models.VotePayload, votingUuid uuid.UUID
 		if votes[userUuid] {
 			return false, fmt.Errorf("duplicated user %s", userUuid)
 		}
-		ok, err = vl.Storage.IsUserAlreadyIn(userUuid)
+		ok, err = vl.storage.IsUserAlreadyIn(userUuid)
 		if err != nil {
 			return false, err
 		}
@@ -159,7 +167,7 @@ func (vl Validator) VotePayload(payload models.VotePayload, votingUuid uuid.UUID
 		if nodes[nodeUuid] {
 			return false, fmt.Errorf("duplicated node %s", nodeUuid)
 		}
-		ok, err = vl.Storage.IsNodeAlreadyIn(nodeUuid)
+		ok, err = vl.storage.IsNodeAlreadyIn(nodeUuid)
 		if err != nil {
 			return false, err
 		}

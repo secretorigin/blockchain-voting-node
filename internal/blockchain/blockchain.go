@@ -17,8 +17,6 @@ type ValidatorInterface interface {
 
 type StorageInterface interface {
 	GetVoting() (models.Voting, error)
-	IsUserAlreadyIn() (bool, error)
-	IsNodeAlreadyIn() (bool, error)
 	NodesCount()
 	GetNodeBySerial(serial uint64) (models.NodeMeta, error)
 }
