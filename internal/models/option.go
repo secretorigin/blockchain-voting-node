@@ -17,7 +17,7 @@ func (op Option) Size() uint64 {
 
 func (op Option) Marshal() []byte {
 	bytes := make([]byte, op.Size())
-	last_index := 0
+	last_index := uint64(0)
 
 	// uuid
 	copy(bytes[last_index:last_index+UUID_SIZE], op.Uuid[:])
@@ -26,8 +26,8 @@ func (op Option) Marshal() []byte {
 	binary.LittleEndian.PutUint64(bytes[last_index:last_index+8], uint64(len(op.Title)))
 	last_index += 8
 	// title
-	copy(bytes[last_index:last_index+len(op.Title)], op.Title[:])
-	last_index += len(op.Title)
+	copy(bytes[last_index:last_index+uint64(len(op.Title))], op.Title[:])
+	last_index += uint64(len(op.Title))
 
 	return bytes
 }

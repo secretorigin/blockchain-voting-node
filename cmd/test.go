@@ -7,16 +7,16 @@ import (
 	"github.com/google/uuid"
 )
 
-func gen(size int) []byte {
+func gen(size uint64) []byte {
 	var array []byte
-	for i := 0; i < size; i++ {
+	for i := uint64(0); i < size; i++ {
 		array = append(array, byte(i))
 	}
 
 	return array
 }
 
-func testByteForm(object models.ByteForm) {
+func testByteForm(object models.ByteForm, emptyobject models.ByteForm) {
 	bytes := object.Marshal()
 	fmt.Println(object.Size())
 
@@ -24,9 +24,9 @@ func testByteForm(object models.ByteForm) {
 
 	fmt.Println(object)
 
-	_ = object.Unmarshal(bytes)
+	_ = emptyobject.Unmarshal(bytes)
 
-	fmt.Println(object)
+	fmt.Println(emptyobject)
 }
 
 func testBlockHeader() {
@@ -54,12 +54,14 @@ func testBlockHeader() {
 
 	header.OptionsCount = 2
 
-	header.Voters = append(header.Voters, voter1)
-	header.Voters = append(header.Voters, voter2)
-	header.Voters = append(header.Voters, voter3)
+	header.Votes = append(header.Votes, voter1)
+	header.Votes = append(header.Votes, voter2)
+	header.Votes = append(header.Votes, voter3)
+
+	header.UserUuid = uuid.New()
 	header.Signature = [models.SIGNATURE_SIZE]byte(gen(models.SIGNATURE_SIZE))
 
-	testByteForm(&header)
+	testByteForm(&header, &models.BlockHeader{OptionsCount: header.OptionsCount})
 }
 
 func MakeVoting() models.Voting {
@@ -81,9 +83,11 @@ func MakeVoting() models.Voting {
 	}
 
 	voting := models.Voting{
-		Uuid:    uuid.New(),
-		Title:   "voting",
-		Options: []models.Option{option1, option2, option3, option4},
+		Uuid:            uuid.New(),
+		Title:           "voting",
+		Options:         []models.Option{option1, option2, option3, option4},
+		CycleDuration:   1000,
+		SendingDuration: 100,
 	}
 
 	return voting
@@ -92,15 +96,14 @@ func MakeVoting() models.Voting {
 func testVoting() {
 	voting := MakeVoting()
 
-	testByteForm(&voting)
+	testByteForm(&voting, &models.Voting{})
 }
 
 func MakeCorePayload() models.CorePayload {
 	payload := models.CorePayload{
-		Voting:          MakeVoting(),
-		CycleDuration:   1000,
-		SendingDuration: 100,
-		Signature:       [models.SIGNATURE_SIZE]byte(gen(models.SIGNATURE_SIZE)),
+		UserUuid:  uuid.New(),
+		Voting:    MakeVoting(),
+		Signature: [models.SIGNATURE_SIZE]byte(gen(models.SIGNATURE_SIZE)),
 	}
 
 	return payload
@@ -109,11 +112,11 @@ func MakeCorePayload() models.CorePayload {
 func testCorePaylaod() {
 	payload := MakeCorePayload()
 
-	testByteForm(&payload)
+	testByteForm(&payload, &models.CorePayload{})
 }
 
-func MakeVotePayload() models.VotePaylaod {
-	var payload models.VotePaylaod
+func MakeVotePayload() models.VotePayload {
+	var payload models.VotePayload
 
 	vote1 := models.Vote{
 		UserUuid:   uuid.New(),
@@ -164,9 +167,11 @@ func MakeVotePayload() models.VotePaylaod {
 func testVotePayload() {
 	payload := MakeVotePayload()
 
-	testByteForm(&payload)
+	testByteForm(&payload, &models.VotePayload{})
 }
 
 func main() {
+	testBlockHeader()
+	testCorePaylaod()
 	testVotePayload()
 }

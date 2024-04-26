@@ -2,13 +2,13 @@ package blockchain
 
 import (
 	"voting-blockchain/internal/models"
+	"voting-blockchain/internal/validators"
 
 	"github.com/google/uuid"
 )
 
 type Blockchain struct {
-	Validator struct{}
-	Storage   StorageInterface
+	HeaderValidator validators.BlockHeaderValidator
 }
 
 type ValidatorInterface interface {

@@ -1,11 +1,15 @@
 package controller
 
-import "net/http"
+import (
+	"net/http"
+	"voting-blockchain/internal/validators"
+)
 
 type Router struct {
+	VoteValidator *validators.VotePayloadValidator
 }
 
 func (rt *Router) Set(mux *http.ServeMux) {
-	mux.HandleFunc("/vote", func(w http.ResponseWriter, r *http.Request) {})
-	mux.HandleFunc("/node", func(w http.ResponseWriter, r *http.Request) {})
+	mux.HandleFunc("/voting/{voting_uuid}/vote", rt.VotePost)
+	mux.HandleFunc("/node", rt.NodePost)
 }
