@@ -1,0 +1,43 @@
+version: "2.3"
+
+services:
+  postgres:
+    container_name: vb-postgres
+    image: postgres
+    restart: always
+    environment:
+      - POSTGRES_DB=vb_db
+      - POSTGRES_USER=vb_root
+      - POSTGRES_PASSWORD=Password12345
+    volumes:
+      - ./migrations:/docker-entrypoint-initdb.d
+      - ./data/.pgdata:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U vb_root -d vb_db"]
+      interval: 7s
+      timeout: 5s
+      retries: 3
+    networks:
+      - main_network
+
+  service:
+    build: ./
+    container_name: vb-node
+    image: vb-node-img
+    restart: on-failure
+    environment:
+      - SERVICE_HOST=0.0.0.0
+      - SERVICE_PORT=10123
+    ports:
+      - 10123:10123
+    volumes:
+      - ./log:/app/log
+    depends_on:
+      postgres:
+        condition: service_healthy
+    networks:
+      - main_network
+
+networks:
+  main_network:
+    driver: bridge

@@ -1,0 +1,173 @@
+openapi: 3.0.2
+info:
+  version: 1.0.1
+  title: Blockchain Voting Node
+  contact:
+    name: Kandakov Danil
+servers:
+  - url: http://localhost:30000/v1
+tags:
+  - name: Main
+    description: Main API
+paths:
+  /voting:
+    post:
+      description: create new voting
+      operationId: voting
+      tags:
+        - Main
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/voting'
+      responses:
+        '200':
+          description: ok
+          content:
+            application/json:
+              schema:
+                properties:
+                  uuid:
+                    type: string
+        '400':
+          description: validation error
+        '500':
+          description: internal server error
+
+  /voting/{uuid}:
+    get:
+      description: get voting description
+      operationId: voting
+      parameters:
+      - in: path
+        name: uuid
+        required: true
+        description: uuid of the voting
+        schema:
+          type: string
+      tags:
+        - Main
+      responses:
+        '200':
+          description: ok
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Voting'
+        '400':
+          description: validation error
+        '500':
+          description: internal server error
+  
+  /voting/{uuid}/vote:
+    post:
+      description: make vote
+      operationId: vote
+      parameters:
+      - in: path
+        name: uuid
+        required: true
+        description: uuid of the voting
+        schema:
+          type: string
+      tags:
+        - Main
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Vote'
+      responses:
+        '200':
+          description: ok
+        '404':
+          description: voting not found
+        '500':
+          description: internal server error
+
+  /voting/{uuid}/node:
+    post:
+      description: make vote
+      operationId: vote
+      parameters:
+      - in: path
+        name: uuid
+        required: true
+        description: uuid of the voting
+        schema:
+          type: string
+      tags:
+        - Main
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Node'
+      responses:
+        '200':
+          description: ok
+        '400':
+          description: validation error
+        '500':
+          description: internal server error
+
+components:
+  schemas:
+    Node:
+      required:
+      - user_uuid
+      - host
+      - port
+      - signature_base64
+      properties:
+        user_uuid:
+          type: string
+        host:
+          type: string
+        port:
+          type: integer
+        signature_base64:
+          description: signature in base64
+          type: string
+
+    Vote:
+      required:
+      - option_uuid
+      - user_uuid
+      - signature_base64
+      properties:
+        option_uuid:
+          type: string
+        user_uuid:
+          type: string
+        signature_base64:
+          type: string
+
+    Option:
+      required:
+      - title
+      - uuid
+      properties:
+        title:
+          type: string
+        uuid:
+          type: string
+
+    Voting:
+      required:
+      - uuid
+      - title
+      - options
+      - cycle_duration
+      - sending_duration
+      - cycles_count
+      properties:
+        uuid:
+          type: string
+        title:
+          type: string
+        options:
+          type: array
+          items:
+            $ref: '#/components/schemas/Option'

@@ -6,7 +6,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"net/http"
-	"voting-blockchain/internal/models"
+	"voting-blockchain/internal/models/types"
 
 	"github.com/google/uuid"
 )
@@ -24,10 +24,10 @@ func NewValidator(host string, port uint16) *Validator {
 }
 
 func (vl Validator) getPath() string {
-	return "http://" + vl.host + ":" + string(vl.port) + "/validate"
+	return "http://" + vl.host + ":" + fmt.Sprint(vl.port) + "/validate"
 }
 
-func (vl Validator) Validate(userUuid uuid.UUID, votingUuid uuid.UUID, data []byte, signature models.Signature) (bool, error) {
+func (vl Validator) Validate(userUuid types.Uuid, votingUuid types.Uuid, data []byte, signature types.Signature) (bool, error) {
 	type RequestBody struct {
 		UserUuid        string `json:"user_uuid"`
 		VotingUuid      string `json:"voting_uuid"`
@@ -36,8 +36,8 @@ func (vl Validator) Validate(userUuid uuid.UUID, votingUuid uuid.UUID, data []by
 	}
 
 	body_bytes, err := json.Marshal(RequestBody{
-		UserUuid:        userUuid.String(),
-		VotingUuid:      votingUuid.String(),
+		UserUuid:        uuid.UUID(userUuid).String(),
+		VotingUuid:      uuid.UUID(votingUuid).String(),
 		DataBase64:      base64.StdEncoding.EncodeToString(data),
 		SignatureBase64: base64.StdEncoding.EncodeToString(signature[:]),
 	})
@@ -50,6 +50,6 @@ func (vl Validator) Validate(userUuid uuid.UUID, votingUuid uuid.UUID, data []by
 		return false, err
 	}
 
-	fmt.Printf("userUuid = %s, StatusCode = %d", userUuid.String(), resp.StatusCode)
+	fmt.Printf("userUuid = %s, StatusCode = %d", uuid.UUID(userUuid).String(), resp.StatusCode)
 	return (resp.StatusCode == 200), nil
 }

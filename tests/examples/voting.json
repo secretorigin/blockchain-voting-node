@@ -1,0 +1,16 @@
+{
+  "uuid": "4b4b5951-5c3f-48c6-a87f-395605fd4928",
+  "title": "my first voting",
+  "options": [
+    {
+      "uuid": "1a032f8b-764c-4479-9665-4b3f9b6648d3",
+      "title": "First Option"      
+    },
+    {
+      "uuid": "a756509a-b1f4-49ce-829f-bf4ab95ca111",
+      "title": "Second Option"      
+    }
+  ],
+  "cycle_duration": 600,
+  "sending_duration": 200
+}
